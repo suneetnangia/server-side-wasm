@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 bytes                  = "1"
 http                   = "0.2"
 wasi-experimental-http = { path = "../../crates/wasi-experimental-http" }
+libc                   = "*"

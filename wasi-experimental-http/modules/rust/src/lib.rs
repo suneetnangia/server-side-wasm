@@ -1,21 +1,23 @@
 use std::{time};
 use bytes::Bytes;
+use libc::c_char;
+use std::fs;
 
 // Posts message to IoT Hub over Https
-// TODO: Add parameters for device url/connection string
 #[no_mangle]
-pub extern "C" fn post_iot_message(param1: i32, param2: i32) {
-
-    println!("Param1: {:?}, Param2: {:?}", param1, param2);
+pub extern "C" fn post_iot_message(_s: *const c_char) {    
+    // TODO: Make use of config file content for loading device config.
+    let filename = "./config.toml";
+    let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
+    println!("config file content:\n{}", contents);
     
     let mut counter = 0;
-
     loop {
         let url = "https://iothubsmn.azure-devices.net/devices/rusty_device01/messages/events?api-version=2020-03-13".to_string();
         let req = http::request::Builder::new()
             .method(http::Method::POST)
             .uri(&url)
-            .header("Authorization", "SharedAccessSignature sr=iothubsmn.azure-devices.net%2Fdevices%2Frusty_device01&sig=Ybeo4ljH4fiEJkV%2Brq2%2BoumaeL5mcrTIeCSmQ889FoQ%3D&se=1656373155")
+            .header("Authorization", "")
             .header("Content-Type", "application/text");
 
         let b = Bytes::from(format!("Wasm sent a message at {:?}!", time::SystemTime::now()));

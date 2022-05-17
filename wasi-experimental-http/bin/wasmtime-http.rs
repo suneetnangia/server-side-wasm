@@ -1,13 +1,13 @@
 use std::{
-    ffi::{OsStr, CString},
-    path::{Component, PathBuf},
+    ffi::{OsStr},
+    path::{Component, PathBuf},    
 };
 
 use anyhow::{bail, Error};
 use structopt::StructOpt;
 use wasi_cap_std_sync::WasiCtxBuilder;
 use wasi_experimental_http_wasmtime::{HttpCtx, HttpState};
-use wasmtime::{AsContextMut, Engine, Func, Instance, Linker, Store, Val, ValType, ExternRef};
+use wasmtime::{AsContextMut, Engine, Func, Instance, Linker, Store, Val, ValType};
 use wasmtime_wasi::*;
 
 #[derive(Debug, StructOpt)]
@@ -87,10 +87,12 @@ fn create_instance(
 
     let args = compute_argv(filename.clone(), &args);
 
+    let dir: Dir = Dir::from_std_file(std::fs::File::open(".").expect("Could not open path '.'"));
     let wasi = WasiCtxBuilder::new()
         .inherit_stdin()
         .inherit_stdout()
         .inherit_stderr()
+        .preopened_dir(dir, ".").expect("Could not preopen path '.'")
         .envs(&vars)?
         .args(&args)?
         .build();
@@ -131,6 +133,7 @@ fn invoke_func(func: Func, args: Vec<String>, mut store: impl AsContextMut) -> R
                 bail!("not enough arguments for invocation")
             }
         };
+
         values.push(match ty {            
             ValType::I32 => Val::I32(val.parse()?),
             ValType::I64 => Val::I64(val.parse()?),
