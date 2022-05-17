@@ -82,6 +82,7 @@ fn create_instance(
     let mut wasmtime_config = wasmtime::Config::default();
     wasmtime_config.wasm_multi_memory(true);
     wasmtime_config.wasm_module_linking(true);
+    wasmtime_config.debug_info(true);
     let engine = Engine::new(&wasmtime_config)?;
     let mut linker = Linker::new(&engine);
 

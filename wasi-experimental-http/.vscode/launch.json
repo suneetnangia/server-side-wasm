@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Cargo Debug post_iot_message",
+            "program": "/usr/local/cargo/bin/cargo",
+            "args": [
+                "run",
+                "--bin=wasmtime-http",
+                "--",
+                "./target/wasm32-wasi/debug/simple_wasi_http_tests.wasm",
+                "-a=https://iothubsmn.azure-devices.net",
+                "-i=post_iot_message",
+                "44"
+            ]
+        },      
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Wasmtime Debug post_iot_message",
+            "program": "${workspaceFolder}/target/debug/wasmtime-http",
+            "args": [
+                "./target/wasm32-wasi/debug/simple_wasi_http_tests.wasm",
+                "-a=https://iothubsmn.azure-devices.net",
+                "-i=post_iot_message",
+                "44"
+            ],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
