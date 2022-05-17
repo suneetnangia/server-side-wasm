@@ -13,7 +13,7 @@
                 "run",
                 "--bin=wasmtime-http",
                 "--",
-                "./target/wasm32-wasi/debug/simple_wasi_http_tests.wasm",
+                "./wasi-experimental-http/target/wasm32-wasi/debug/simple_wasi_http_tests.wasm",
                 "-a=https://iothubsmn.azure-devices.net",
                 "-i=post_iot_message",
                 "44"
@@ -23,14 +23,14 @@
             "type": "lldb",
             "request": "launch",
             "name": "Wasmtime Debug post_iot_message",
-            "program": "${workspaceFolder}/target/debug/wasmtime-http",
+            "program": "${workspaceFolder}/wasi-experimental-http/target/debug/wasmtime-http",
             "args": [
                 "./target/wasm32-wasi/debug/simple_wasi_http_tests.wasm",
                 "-a=https://iothubsmn.azure-devices.net",
                 "-i=post_iot_message",
                 "44"
             ],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/wasi-experimental-http"
         }
     ]
 }
