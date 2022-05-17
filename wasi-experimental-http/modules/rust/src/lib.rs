@@ -1,22 +1,21 @@
 use std::{time};
-
 use bytes::Bytes;
 
-// IoT Hub Post message
-// TODO: Pass string parameters
+// Posts message to IoT Hub over Https
+// TODO: Add parameters for device url/connection string
 #[no_mangle]
-pub extern "C" fn post_iot_message(param1: i32) {
+pub extern "C" fn post_iot_message(param1: i32, param2: i32) {
 
-    println!("Param1: {:?}", param1);
+    println!("Param1: {:?}, Param2: {:?}", param1, param2);
     
-    let mut counter =0i64;
+    let mut counter = 0;
 
     loop {
         let url = "https://iothubsmn.azure-devices.net/devices/rusty_device01/messages/events?api-version=2020-03-13".to_string();
         let req = http::request::Builder::new()
             .method(http::Method::POST)
             .uri(&url)
-            .header("Authorization", "<Replace with your device's SAS token, you can generate one from IoT Explorer client>")
+            .header("Authorization", "SharedAccessSignature sr=iothubsmn.azure-devices.net%2Fdevices%2Frusty_device01&sig=Ybeo4ljH4fiEJkV%2Brq2%2BoumaeL5mcrTIeCSmQ889FoQ%3D&se=1656373155")
             .header("Content-Type", "application/text");
 
         let b = Bytes::from(format!("Wasm sent a message at {:?}!", time::SystemTime::now()));
@@ -28,7 +27,7 @@ pub extern "C" fn post_iot_message(param1: i32) {
             .to_string();
         
         counter += 1;
-        println!("Sending events...{}", counter);
+        println!("Sending event...{}", counter);
 
         assert_eq!(res.status_code, 204);
     }

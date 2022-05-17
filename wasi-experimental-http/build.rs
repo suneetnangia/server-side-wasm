@@ -1,8 +1,5 @@
 use std::process::{self, Command};
 
-const TESTS_DIR: &str = "tests";
-const RUST_EXAMPLE: &str = "rust";
-
 const RUST_GUEST_RAW: &str = "crates/wasi-experimental-http/src/raw.rs";
 const MD_GUEST_API: &str = "witx/readme.md";
 
@@ -10,25 +7,13 @@ const WITX_CODEGEN_VERSION: &str = "0.11.0";
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=tests/rust/src/lib.rs");
+    println!("cargo:rerun-if-changed=module/rust/src/lib.rs");
     println!("cargo:rerun-if-changed=crates/wasi-experimental-http/src/lib.rs");
-    println!("cargo:rerun-if-changed=tests/as/index.ts");
-    println!("cargo:rerun-if-changed=crates/as/index.ts");
     println!("cargo:rerun-if-changed=witx/wasi_experimental_http.witx");
 
     generate_from_witx("rust", RUST_GUEST_RAW);    
     generate_from_witx("markdown", MD_GUEST_API);
-
-    cargo_build_example(TESTS_DIR, RUST_EXAMPLE);    
-}
-
-fn cargo_build_example(dir: &str, example: &str) {
-    let dir = format!("{}/{}", dir, example);
-
-    run(
-        vec!["cargo", "build", "--target", "wasm32-wasi", "--release"],
-        Some(dir),
-    );
+    
 }
 
 fn check_witx_codegen() {
