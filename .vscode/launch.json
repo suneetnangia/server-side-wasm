@@ -19,7 +19,8 @@
                 "44",
                 "45"
             ],
-            "cwd": "${workspaceFolder}/wasi-experimental-http"
+            "cwd": "${workspaceFolder}/wasi-experimental-http",
+            "preLaunchTask": "Build wasi-experimental-http Rust modules"
         },      
         {
             "type": "lldb",
@@ -33,7 +34,8 @@
                 "44",
                 "45"
             ],
-            "cwd": "${workspaceFolder}/wasi-experimental-http"
+            "cwd": "${workspaceFolder}/wasi-experimental-http",
+            "preLaunchTask": "Build wasmtime-http Rust app"
         }
     ]
 }
