@@ -18,3 +18,7 @@ The solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-gb/azure
 
 1. Edge modules send telemetry to IoT Hub for ingress and further routing
 2. Device Twins are used to configure signal configuration Wasm based modules on the edge, from IoT Hub
+
+## References
+
+1. [Lin Clark on WASI @QCon Plus 2021](https://www.infoq.com/presentations/wasi-system-interface/)
