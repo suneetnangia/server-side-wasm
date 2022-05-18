@@ -24,7 +24,7 @@
     members = [
         "crates/wasi-experimental-http",
         "crates/wasi-experimental-http-wasmtime",
-        "modules/rust",
+        "modules/iot_edge_module_simulated",
     ]
 
 [[bin]]

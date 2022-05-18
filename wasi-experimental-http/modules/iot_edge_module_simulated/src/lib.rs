@@ -8,7 +8,7 @@ use toml::Value;
 pub extern "C" fn post_iot_message() {
 
     // Read .toml file contents for device config, dir for this file must be pre-opened by WASI.
-    let filename = "./config.toml";
+    let filename = "./iot_edge_module_simulated.toml";
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
     let value = contents.parse::<Value>().unwrap();
 
