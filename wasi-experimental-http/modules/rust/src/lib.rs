@@ -1,23 +1,24 @@
 use std::{time};
 use bytes::Bytes;
-use libc::c_char;
 use std::fs;
+use toml::Value;
 
 // Posts message to IoT Hub over Https
 #[no_mangle]
-pub extern "C" fn post_iot_message(_s: *const c_char) {    
-    // TODO: Make use of config file content for loading device config.
+pub extern "C" fn post_iot_message() {
+
+    // Read .toml file contents for device config, dir for this file must be pre-opened by WASI.
     let filename = "./config.toml";
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    println!("config file content:\n{}", contents);
-    
+    let value = contents.parse::<Value>().unwrap();
+
     let mut counter = 0;
     loop {
-        let url = "https://iothubsmn.azure-devices.net/devices/rusty_device01/messages/events?api-version=2020-03-13".to_string();
+        let url = value["iot_hub_device_url"].as_str().unwrap();
         let req = http::request::Builder::new()
             .method(http::Method::POST)
-            .uri(&url)
-            .header("Authorization", "")
+            .uri(url)
+            .header("Authorization", value["iot_hub_device_conn_string"].as_str().unwrap())
             .header("Content-Type", "application/text");
 
         let b = Bytes::from(format!("Wasm sent a message at {:?}!", time::SystemTime::now()));
