@@ -15,9 +15,7 @@
                 "--",
                 "./target/wasm32-wasi/debug/iot_edge_module_simulated.wasm",
                 "-a=https://iothubsmn.azure-devices.net",
-                "-i=post_iot_message",
-                "44",
-                "45"
+                "-i=post_iot_message"
             ],
             "cwd": "${workspaceFolder}/wasi-experimental-http",
             "preLaunchTask": "Build wasi-experimental-http Rust modules"
@@ -30,9 +28,7 @@
             "args": [
                 "./target/wasm32-wasi/debug/iot_edge_module_simulated.wasm",
                 "-a=https://iothubsmn.azure-devices.net",
-                "-i=post_iot_message",
-                "44",
-                "45"
+                "-i=post_iot_message"
             ],
             "cwd": "${workspaceFolder}/wasi-experimental-http",
             "preLaunchTask": "Build wasmtime-http Rust app"
