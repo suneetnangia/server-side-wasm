@@ -1,0 +1,26 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build wasi-experimental-http Rust modules",
+        "type": "shell",
+        "command": "cargo build --manifest-path ${workspaceFolder}/wasi-experimental-http/modules/rust/Cargo.toml --target wasm32-wasi",
+        "group": "build",
+        "presentation": {
+            "reveal": "always"
+        }
+      },
+      {
+        "label": "Build wasmtime-http Rust app",
+        "type": "shell",
+        "command": "cargo build --manifest-path ${workspaceFolder}/wasi-experimental-http/Cargo.toml",
+        "group": "build",
+        "presentation": {
+            "reveal": "always"
+        },
+        "dependsOn":["Build wasi-experimental-http Rust modules"]
+      }
+    ]
+  }
