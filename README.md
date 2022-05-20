@@ -19,6 +19,9 @@ The solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-gb/azure
 1. Edge modules send telemetry to IoT Hub for ingress and further routing
 2. Device Twins are used to configure signal configuration Wasm based modules on the edge, from IoT Hub
 
+Wasm Solution Components
+![alt text](images/components.png "Core Wasm Solution Components")
+
 ## Dev Setup
 
 1. Open the solution in Codespaces
@@ -27,7 +30,7 @@ The solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-gb/azure
     2. run `cargo build --target wasm32-wasi`
 3. Update edge module device config in iot_edge_module_simulated.toml
 4. Compile and run app which hosts wasmtime and wasi to run wasm edge module:
-    1. run `cargo run --bin wasmtime-http -- -a "https://iothubsmn.azure-devices.net" -i "post_iot_message" ./target/wasm32-wasi/debug/iot_edge_module_simulated.wasm`
+    1. run `cargo run --bin wasmtime-http -- -a "https://<youriothubname>.azure-devices.net" -i "post_iot_message" ./target/wasm32-wasi/debug/iot_edge_module_simulated.wasm`
 
 ## References
 
