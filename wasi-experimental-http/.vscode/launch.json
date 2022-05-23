@@ -1,0 +1,88 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'wasi-experimental-http'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=wasi-experimental-http"
+                ],
+                "filter": {
+                    "name": "wasi-experimental-http",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'wasi-experimental-http-wasmtime'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=wasi-experimental-http-wasmtime"
+                ],
+                "filter": {
+                    "name": "wasi-experimental-http-wasmtime",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'wasmtime-http'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=wasmtime-http",
+                    "--package=wasi-experimental-http-wasmtime-sample",                    
+                ],
+                "filter": {
+                    "name": "wasmtime-http",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "--invoke=post_iot_message",
+                "--allowed-host=https://iothubsmn.azure-devices.net",
+                "./target/wasm32-wasi/debug/iot_edge_module_simulated.wasm",
+                "abc"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'wasmtime-http'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=wasmtime-http",
+                    "--package=wasi-experimental-http-wasmtime-sample"
+                ],
+                "filter": {
+                    "name": "wasmtime-http",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
