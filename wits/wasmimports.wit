@@ -1,0 +1,1 @@
+sendout: func(message: string) -> string

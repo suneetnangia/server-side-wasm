@@ -1,0 +1,3 @@
+blacklisted-names = ["rust"]
+cognitive-complexity-threshold = 30
+
