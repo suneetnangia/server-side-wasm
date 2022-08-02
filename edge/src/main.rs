@@ -1,17 +1,17 @@
-wit_bindgen_wasmtime::import!("../wits/iote.wit");
+wit_bindgen_wasmtime::import!("../wits/wasmexports.wit");
 wit_bindgen_wasmtime::export!("../wits/wasmimports.wit");
 
 use anyhow::Result;
 use wit_bindgen_wasmtime::wasmtime::{Config, Engine, Linker, Module, Store};
 use wasmtime_wasi::Dir;
 
-struct WasmImports {
+struct Wasmimports {
 }
 
-impl wasmimports::Wasmimports for WasmImports {
+impl wasmimports::Wasmimports for Wasmimports {
     fn sendout(&mut self, message: &str,) -> String {
-        println!("Message from wasm: {}", message);
-        "Returned".to_string()
+         println!("Called host function with: {}", message);
+        "Returned from host".to_string()
     }
 }
 
@@ -30,19 +30,19 @@ fn main() {
 }
 
 fn run(wasm_path: &str, wasm_config_path: &str) {
-    use iote::{Iote, IoteData};
+    use wasmexports::{Wasmexports, WasmexportsData};
    
     // Create type alias for store type with context generic params for import and export types.
     // Both export and import types are struct IotData
-    type IotStore = Store<Context<IoteData>>;
+    type IotStore = Store<Context<WasmexportsData>>;
     
     let funcs = instantiate1(wasm_path,
         |store: &mut IotStore, module, linker| {
                 
             // Add wasm host functions to linker, allowing them to be used in wasm modules.
-            wasmimports::add_to_linker(linker, |ctx| -> &mut WasmImports { ctx.runtime_data.as_mut().unwrap() })?;
+            wasmimports::add_to_linker(linker, |ctx| -> &mut Wasmimports { ctx.runtime_data.as_mut().unwrap() })?;
             // Instantiates wasm module instance from auto generated binding code.
-            let a = Iote::instantiate(store, module, linker, |cx| &mut cx.exports);
+            let a = Wasmexports::instantiate(store, module, linker, |cx| &mut cx.exports);
             
             Ok(a.unwrap().0)
         }
@@ -51,7 +51,7 @@ fn run(wasm_path: &str, wasm_config_path: &str) {
     let (exports, store) = funcs.expect("Could not load functions from wasm module.");
     let response = exports.init(store, wasm_config_path).expect("Could not call the function.");
     
-    println!("{:?}", response);
+    println!("Returned from wasm imported function with: {:?}", response);
 
 }
 
@@ -67,7 +67,7 @@ fn default_wasi() -> wasmtime_wasi::WasiCtx {
 
 struct Context<E> {
     wasi: wasmtime_wasi::WasiCtx,
-    pub runtime_data: Option<WasmImports>,    
+    pub runtime_data: Option<Wasmimports>,    
     exports: E,
 }
 
@@ -88,7 +88,7 @@ fn instantiate1<E: Default, T>(
         &engine,
         Context {
             wasi: default_wasi(),
-            runtime_data: Some(WasmImports { }),
+            runtime_data: Some(Wasmimports { }),
             exports: E::default(),
         },
     );

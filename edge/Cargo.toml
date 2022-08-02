@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "*"
-#wit-bindgen-wasmtime = { path = "../../wit-bindgen/crates/wasmtime" }
 wit-bindgen-wasmtime = { git = "https://github.com/bytecodealliance/wit-bindgen.git" }
-#wasmtime-wasi = "*"
 wasmtime-wasi = "0.38.1"
+# wasi-experimental-http-wasmtime = "0.10.0"

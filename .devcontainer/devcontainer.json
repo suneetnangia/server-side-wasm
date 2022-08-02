@@ -30,9 +30,9 @@
 	"extensions": [
 		"vadimcn.vscode-lldb",
 		"mutantdino.resourcemonitor",
-		"tamasfe.even-better-toml",
-		"serayuzgur.crates",
-		"rust-lang.rust-analyzer",
+		"matklad.rust-analyzer",
+		"tamasfe.even-better-toml",		
+		"serayuzgur.crates",		
 		"DavidAnson.vscode-markdownlint"
 	],
 
