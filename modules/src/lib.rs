@@ -22,7 +22,7 @@ impl wasmexports::Wasmexports for Wasmexports {
         println!("Initialising edge module '{}' with connection string '{}'", MODULE_NAME, iot_edge_connection_string);
 
         // Calling host function here and print the return value.
-        wasmimports::sendout("Hello from sandbox!");
+        wasmimports::sendtelemetry(r#"{"device Id" : "001", "temp" : 12.5, "pressure": 20.3}"#);
     }
 }
 

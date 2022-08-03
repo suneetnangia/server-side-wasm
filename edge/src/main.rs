@@ -9,8 +9,8 @@ struct Wasmimports {
 }
 
 impl wasmimports::Wasmimports for Wasmimports {
-    fn sendout(&mut self, message: &str,) -> String {
-         println!("Called host function with: {}", message);
+    fn sendtelemetry(&mut self, message: &str,) -> String {
+         println!("Sending telemetry with content: {}", message);
         "Returned from host".to_string()
     }
 }
