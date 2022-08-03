@@ -1,0 +1,1 @@
+sendtelemetry: func(message: string) -> string
