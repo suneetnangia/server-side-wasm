@@ -26,6 +26,9 @@ Host functions import approach allows the guest wasm module to import functions 
 ![alt text](images/wit-based-design.png "WIT Based Host Function Import Approach")
 
 Wasm Solution Components
+
+This diagram describes the inner model and interactions between wasm, wasmtime and other related components.
+
 ![alt text](images/components.png "Core Wasm Solution Components")
 
 ## Dev Setup
@@ -35,7 +38,8 @@ Wasm Solution Components
     1. `cd modules`
     2. run `cargo build --target wasm32-wasi`
 3. Compile and run app which hosts wasmtime and wasi with imported/exported functions to run wasm edge module:
-    1. run `cargo run`
+    1. `cd edge`
+    2. run `cargo run`
 
 ## References
 
