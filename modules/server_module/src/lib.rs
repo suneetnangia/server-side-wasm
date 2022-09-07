@@ -1,5 +1,5 @@
-wit_bindgen_rust::import!("../wits/wasmimports.wit");
-wit_bindgen_rust::export!("../wits/wasmexports.wit");
+wit_bindgen_rust::import!("../../wits/wasmimports.wit");
+wit_bindgen_rust::export!("../../wits/wasmexports.wit");
 
 mod iot_config;
 use std::fs;
