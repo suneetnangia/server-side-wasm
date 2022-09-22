@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "*"
-wit-bindgen-wasmtime = { git = "https://github.com/bytecodealliance/wit-bindgen.git" }
-wasmtime-wasi = "0.38.3"
-# wasi-experimental-http-wasmtime = "0.10.0"
+# wit-bindgen-wasmtime = { git = "https://github.com/bytecodealliance/wit-bindgen.git" }
+wit-bindgen-wasmtime = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "dde4694aaa6acf9370206527a798ac4ba6a8c5b8" }
+wasmtime-wasi = "0.35.3"
+wasi-experimental-http-wasmtime = {git = "https://github.com/deislabs/wasi-experimental-http"}

@@ -145,6 +145,17 @@ fn instantiate<E: Default, T>(
     let mut linker = Linker::new(&engine);
         
     wasmtime_wasi::add_to_linker(&mut linker, |cx: &mut Context<E>| &mut cx.wasi)?;
+
+
+    
+    let http = wasi_experimental_http_wasmtime::HttpCtx { allowed_hosts: Some(vec!["https://eogagdcq6w5hak.m.pipedream.net".to_string()]),
+     max_concurrent_requests: Some(42) };
+     
+     wasi_experimental_http_wasmtime::HttpState::new()
+            .expect("HttpState::new failed")
+            .add_to_linker(&mut linker, move |ctx| http.clone())?;
+
+
     
     let mut store = Store::new(
         &engine,

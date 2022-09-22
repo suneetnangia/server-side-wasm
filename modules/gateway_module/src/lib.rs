@@ -17,19 +17,6 @@ impl wasmtelemetryfunctions::Wasmtelemetryfunctions for Wasmtelemetryfunctions {
     // Initialise module with required configuration.
     fn init(config_file_path: String)
     {
-        // Http outbound start
-        let url = "https://<some-domain>/post".to_string();
-        let req = http::request::Builder::new()
-            .method(http::Method::POST)
-            .uri(&url)
-            .header("Content-Type", "text/plain");
-        let b = bytes::Bytes::from("sending a body in a POST request");
-        let req = req.body(Some(b)).unwrap();    
-
-        let res = wasi_experimental_http::request(req).expect("cannot make request");
-        // let str = std::str::from_utf8(&resbody()).unwrap().to_string();
-        // Http outbound ends
-
         let configfilepath = config_file_path;
         let configfilecontents = fs::read_to_string(configfilepath).unwrap(); // TODO: use anyhow::Result instead of unwrap.
 
@@ -42,12 +29,3 @@ impl wasmtelemetryfunctions::Wasmtelemetryfunctions for Wasmtelemetryfunctions {
         hostfunctions::sendtelemetry(r#"{"device Id" : "001", "temp" : 12.5, "pressure": 20.3}"#);
     }
 }
-
-// #[cfg(test)]
-// mod module_tests {
-//     use super::*;
-//     #[test]
-//     fn check_module_init() {
-//         Wasmtelemetryfunctions::init("config.toml".to_string());
-//     }
-// }

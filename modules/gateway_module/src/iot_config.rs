@@ -6,7 +6,7 @@ pub struct Configuration {
 }
 
 impl Configuration {
-    pub fn new (configfilecontents: String) ->Self
+    pub fn new (configfilecontents: String) -> Self
     {
         Self{                
             config_value: configfilecontents.parse::<Value>().unwrap()
