@@ -1,5 +1,5 @@
 [package]
-name = "server_module"
+name = "gateway_module"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,8 +10,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }
-tokio = { version = "*", features = ["rt", "macros", "net", "io-util"] }
-# tokio = { git = "https://github.com/tokio-rs/tokio", branch = "master", features = ["rt", "macros", "net", "io-util"] }
+wasi-experimental-http = { git = "https://github.com/deislabs/wasi-experimental-http", rev = "a82ae3d6c85c4251b3663035febeb8100068f51d" }
+bytes = "1"
+http = "0.2"
 toml = "*"
 fs = "*"
 anyhow = "*"

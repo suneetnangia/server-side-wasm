@@ -1,0 +1,1 @@
+init: func(configfilepath: string, preopendedsocketfd: u32)

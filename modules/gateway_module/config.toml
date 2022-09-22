@@ -1,0 +1,3 @@
+# These are examples, update these settings as per your own IoT Hub device.
+iot_hub_device_url = 'https://iothubsmn.azure-devices.net/devices/rusty_device01/messages/events?api-version=2020-03-13'
+iot_hub_device_conn_string = 'SharedAccessSignature sr=some.azure-devices.net%2Fdevices%2Frusty_device01&sig=dummy'

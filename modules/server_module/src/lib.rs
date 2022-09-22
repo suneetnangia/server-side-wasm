@@ -1,36 +1,82 @@
-wit_bindgen_rust::import!("../../wits/wasmimports.wit");
-wit_bindgen_rust::export!("../../wits/wasmexports.wit");
+// Export WIT bindings in Rust lang from wasm module to be used by host code.
+wit_bindgen_rust::export!("../../wits/wasmserverfunctions.wit");
 
-mod iot_config;
-use std::fs;
-// use anyhow::{Result};
+mod server_config;
+use std:: {fs, error::Error};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
+use anyhow::{Result};
 
-const MODULE_NAME: &str = "Temperature Sensor Simulator Edge Module";
+const MODULE_NAME: &str = "Pub-Sub Messaging Module [Echo Server Currently]";
 
-struct Wasmexports;
+struct Wasmserverfunctions;
+impl wasmserverfunctions::Wasmserverfunctions for Wasmserverfunctions {
 
-impl wasmexports::Wasmexports for Wasmexports {
     // Initialise module with required configuration.
-    fn init(config_file_path: String)
+    fn init(config_file_path: String, preopended_socket_fd: u32) // -> Result<()>
     {
+        println!("Initialising server module '{}'", MODULE_NAME);
+
         let configfilepath = config_file_path;
-        let configfilecontents = fs::read_to_string(configfilepath).unwrap(); // TODO: use anyhow::Result instead of unwrap.
+        let configfilecontent = fs::read_to_string(configfilepath).unwrap();
 
-        let iot_edge_config = iot_config::Configuration::new(configfilecontents);
-        let iot_edge_connection_string = iot_edge_config.connection_string();
+        let server_config = server_config::Configuration::new(configfilecontent);
+        let iot_edge_connection_string = server_config.connection_string();
         
-        println!("Initialising edge module '{}' with connection string '{}'", MODULE_NAME, iot_edge_connection_string);
-
-        // Calling host function here and print the return value.
-        wasmimports::sendtelemetry(r#"{"device Id" : "001", "temp" : 12.5, "pressure": 20.3}"#);
+        println!("Loaded configuration {}", iot_edge_connection_string);        
+        
+        server(preopended_socket_fd).unwrap()
+        // Ok(())
     }
 }
 
-#[cfg(test)]
-mod module_tests {
-    use super::*;
-    #[test]
-    fn check_module_init() {
-        WasmExports::init("config.toml".to_string());
+#[tokio::main(flavor = "current_thread")]
+async fn server(fd: u32) -> Result<(), Box<dyn Error>> {
+    let listener = get_tcplistener(fd).await?;
+    
+    loop {
+        // Asynchronously wait for an inbound socket.
+        let stream_res = listener.accept().await;
+
+        if let Err(e) = stream_res {
+            println!("failed to accept connection; error = {}", e);
+            continue;
+        }
+
+        let (socket, _) = stream_res.unwrap();
+        println!("Connection received.");
+        
+        tokio::spawn(async move {
+            if let Err(e) = process(socket).await {
+                println!("failed to process connection; error = {}", e);
+            }
+        });
+    }
+}
+
+#[cfg(target_os = "wasi")]
+async fn get_tcplistener(fd: u32) -> Result<TcpListener> {
+    use std::os::wasi::io::FromRawFd;
+    
+    // use file descriptor passed in for the preopened socket,
+    // this must match in the calling host's WASI configuration.
+    let stdlistener = unsafe { std::net::TcpListener::from_raw_fd(fd.try_into().unwrap()) };
+    stdlistener.set_nonblocking(true)?;
+    Ok(TcpListener::from_std(stdlistener)?)
+}
+
+async fn process(mut socket: TcpStream) -> Result<(), Box<dyn Error>> {
+    let mut buf = vec![0; 1024];
+
+    // In a loop, read data from the socket and write the data back.
+    loop {
+        
+        let n = socket.read(&mut buf).await.expect("failed to read data from socket");
+
+        if n == 0 {
+            return Ok(());
+        }
+        
+        socket.write_all(&buf[0..n]).await.expect("failed to write data to socket");
     }
 }
