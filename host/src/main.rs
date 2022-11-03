@@ -1,30 +1,34 @@
 wit_bindgen_wasmtime::import!("../wits/wasmserverfunctions.wit");
 wit_bindgen_wasmtime::import!("../wits/wasmtelemetryfunctions.wit");
-wit_bindgen_wasmtime::export!("../wits/hostfunctions.wit");
+wit_bindgen_wasmtime::import!("../wits/wasmgatewayfunctions.wit");
+wit_bindgen_wasmtime::export!("../wits/hostobservability.wit");
 
 use std::{fs, net as stdnet};
+use std::thread::{self};
 use anyhow::Result;
 use wit_bindgen_wasmtime::wasmtime::{Config, Engine, Linker, Module, Store};
 use wasmtime_wasi::{Dir, net, TcpListener};
 use wasmserverfunctions::{Wasmserverfunctions, WasmserverfunctionsData};
 use wasmtelemetryfunctions::{Wasmtelemetryfunctions, WasmtelemetryfunctionsData};
+use wasmgatewayfunctions::{Wasmgatewayfunctions, WasmgatewayfunctionsData};
 
 const PREOPENED_SOCKET_FD: u32 = 4;
 
-struct Hostfunctions {
+struct Hostobservability {
 }
 
-impl hostfunctions::Hostfunctions for Hostfunctions {
-    fn sendtelemetry(&mut self, message: &str,) -> String {
-         println!("Sending telemetry with content: {}", message);
-        "Returned from host".to_string()
+impl hostobservability::Hostobservability for Hostobservability {
+    fn loginfo(&mut self, modulename: &str, message: &str) {
+         println!("Module: {}, Message: {}", modulename, message);
     }
 }
 
 fn main() {
-    println!("Initialising edge host service...");
+    println!("Initialising host service...");
+    
     let server_module_name = "server_module";
-    let telemetry_module_name = "gateway_module";
+    let gateway_module_name = "gateway_module";
+    let telemetry_module_name = "telemetry_module";
 
     // Select the path for wasm module
     let server_module_path = if cfg!(not(debug_assertions)) {
@@ -38,24 +42,68 @@ fn main() {
         } else {
         format!("../modules/{0}/target/wasm32-wasi/debug/{0}.wasm", telemetry_module_name)
     };
-    
-    println!("Loading wasm edge module '{}'", &server_module_path);
-    println!("Loading wasm edge module '{}'", &telemetry_module_path);
 
-    // run_server(&server_module_path, "./server_module/config.toml");
-    run_telemetry(&telemetry_module_path, "./telemetry_module/config.toml");
+    let gateway_module_path = if cfg!(not(debug_assertions)) {
+        format!("../modules/{0}/target/wasm32-wasi/release/{0}.wasm", gateway_module_name)
+        } else {
+        format!("../modules/{0}/target/wasm32-wasi/debug/{0}.wasm", gateway_module_name)
+    };
+
+    let server_thread = thread::spawn(move|| {
+              run_server_module(&server_module_path, "./server_module/config.toml");
+    });
+
+    let gateway_thread = thread::spawn(move|| {
+        run_gateway_module(&gateway_module_path, "./gateway_module/config.toml");
+    });
+
+    let telemetry_thread = thread::spawn(move|| {
+            run_telemetry_module(&telemetry_module_path, "./telemetry_module/config.toml");
+        });
+
+    server_thread.join().unwrap();
+    gateway_thread.join().unwrap();
+    telemetry_thread.join().unwrap();
+
 }
 
-fn run_server(wasm_path: &str, wasm_config_path: &str) {    
+fn run_gateway_module (wasm_path: &str, wasm_config_path: &str) {
     // Create type alias for store type with context generic params for import and export types.
     // Both export and import types are struct IotData
-    type IotServerModuleStore = Store<Context<WasmserverfunctionsData>>;    
+    
+    let wasm_funcs = 
+        instantiate(wasm_path,|store: &mut Store<Context<WasmgatewayfunctionsData>>, module, linker| {
+            // Add wasm host functions to linker, allowing them to be used in wasm modules.
+            hostobservability::add_to_linker(linker, |ctx| -> &mut Hostobservability { ctx.runtime_data.as_mut().unwrap() })?;
+            
+            // Instantiates wasm module instance from auto generated binding code.
+            let funcs = Wasmgatewayfunctions::instantiate(store, module, linker, |cx| &mut cx.exports);
+            
+            Ok(funcs.unwrap().0)
+        },
+
+        || {default_wasi(false)},
+    );
+
+    let (wasm_exports, gateway_store) = wasm_funcs.expect("Could not load functions from wasm module.");
+
+    // Call init of guest/wasm modules
+    wasm_exports.init(gateway_store, wasm_config_path).expect("Could not call the function.");
+    
+    // println!("Returned from wasm imported function with: {:?}", response);
+
+}
+
+fn run_server_module(wasm_path: &str, wasm_config_path: &str) {    
+    // Create type alias for store type with context generic params for import and export types.
+    // Both export and import types are struct IotData
+    type IotServerModuleStore = Store<Context<WasmserverfunctionsData>>;
     
     let server_funcs = instantiate(wasm_path,
         |store: &mut IotServerModuleStore, module, linker| {
                 
             // Add wasm host functions to linker, allowing them to be used in wasm modules.
-            hostfunctions::add_to_linker(linker, |ctx| -> &mut Hostfunctions { ctx.runtime_data.as_mut().unwrap() })?;
+            hostobservability::add_to_linker(linker, |ctx| -> &mut Hostobservability { ctx.runtime_data.as_mut().unwrap() })?;
             
             // Instantiates wasm module instance from auto generated binding code.
             let a = Wasmserverfunctions::instantiate(store, module, linker, |cx| &mut cx.exports);
@@ -67,35 +115,35 @@ fn run_server(wasm_path: &str, wasm_config_path: &str) {
 
     let (server_exports, server_store) = server_funcs.expect("Could not load functions from wasm module.");    
 
-    // Call init of server and telemetry guest/wasm modules
+    // Call init of guest/wasm modules
     server_exports.init(server_store, wasm_config_path, PREOPENED_SOCKET_FD).expect("Could not call the function.");    
     
     // println!("Returned from wasm imported function with: {:?}", response);
 
 }
 
-fn run_telemetry(wasm_path: &str, wasm_config_path: &str) {    
+fn run_telemetry_module (wasm_path: &str, wasm_config_path: &str) {
     // Create type alias for store type with context generic params for import and export types.
-    // Both export and import types are struct IotData    
-    type IotTelemetryStore = Store<Context<WasmtelemetryfunctionsData>>;
+    // Both export and import types are struct IotData
     
-    let telemetry_funcs = instantiate(wasm_path,
-        |store: &mut IotTelemetryStore, module, linker| {
-                
+    let wasm_funcs = 
+        instantiate(wasm_path,|store: &mut Store<Context<WasmtelemetryfunctionsData>>, module, linker| {
             // Add wasm host functions to linker, allowing them to be used in wasm modules.
-            hostfunctions::add_to_linker(linker, |ctx| -> &mut Hostfunctions { ctx.runtime_data.as_mut().unwrap() })?;
-            // Instantiates wasm module instance from auto generated binding code.
-            let a = Wasmtelemetryfunctions::instantiate(store, module, linker, |cx| &mut cx.exports);
+            hostobservability::add_to_linker(linker, |ctx| -> &mut Hostobservability { ctx.runtime_data.as_mut().unwrap() })?;
             
-            Ok(a.unwrap().0)
+            // Instantiates wasm module instance from auto generated binding code.
+            let funcs = Wasmtelemetryfunctions::instantiate(store, module, linker, |cx| &mut cx.exports);
+            
+            Ok(funcs.unwrap().0)
         },
+
         || {default_wasi(false)},
     );
 
-    let (telemetry_exports, telemetry_store) = telemetry_funcs.expect("Could not load functions from wasm module.");
+    let (wasm_exports, telemetry_store) = wasm_funcs.expect("Could not load functions from wasm module.");
 
-    // Call init of server and telemetry guest/wasm modules    
-    telemetry_exports.init(telemetry_store, wasm_config_path).expect("Could not call the function.");
+    // Call init of guest/wasm modules
+    wasm_exports.init(telemetry_store, wasm_config_path).expect("Could not call the function.");
     
     // println!("Returned from wasm imported function with: {:?}", response);
 
@@ -128,7 +176,7 @@ fn default_wasi(open_socket: bool) -> wasmtime_wasi::WasiCtx {
 
 struct Context<E> {
     wasi: wasmtime_wasi::WasiCtx,
-    pub runtime_data: Option<Hostfunctions>,    
+    pub runtime_data: Option<Hostobservability>,    
     exports: E,
 }
 
@@ -145,23 +193,20 @@ fn instantiate<E: Default, T>(
     let mut linker = Linker::new(&engine);
         
     wasmtime_wasi::add_to_linker(&mut linker, |cx: &mut Context<E>| &mut cx.wasi)?;
-
-
-    
-    let http = wasi_experimental_http_wasmtime::HttpCtx { allowed_hosts: Some(vec!["https://eogagdcq6w5hak.m.pipedream.net".to_string()]),
+   
+    // TODO: add allowed hosts to cmd params
+    let http = wasi_experimental_http_wasmtime::HttpCtx { allowed_hosts: Some(vec!["https://eouig31wcbg8fl.m.pipedream.net".to_string()]),
      max_concurrent_requests: Some(42) };
      
      wasi_experimental_http_wasmtime::HttpState::new()
             .expect("HttpState::new failed")
-            .add_to_linker(&mut linker, move |ctx| http.clone())?;
-
-
+            .add_to_linker(&mut linker, move |_ctx| http.clone())?;
     
     let mut store = Store::new(
         &engine,
         Context {
             wasi: wasi_ctx(),
-            runtime_data: Some(Hostfunctions { }),
+            runtime_data: Some(Hostobservability { }),
             exports: E::default(),
         },
     );

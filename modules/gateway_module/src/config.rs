@@ -13,9 +13,9 @@ impl Configuration {
         }
     }
 
-    // Returns connection string for IoT Hub
-    pub fn connection_string(&self) -> String
+    // Returns Http post url e.g. an endpoint on https://requestbin.com/
+    pub fn http_post_url(&self) -> String
     {
-        self.config_value["iot_hub_device_conn_string"].as_str().unwrap().to_string()
+        self.config_value["http_post_url"].as_str().unwrap().to_string()
     }
 }

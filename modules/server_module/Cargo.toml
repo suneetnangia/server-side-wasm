@@ -15,3 +15,4 @@ tokio = { version = "*", features = ["rt", "macros", "net", "io-util"] }
 toml = "*"
 fs = "*"
 anyhow = "*"
+queues = "*"

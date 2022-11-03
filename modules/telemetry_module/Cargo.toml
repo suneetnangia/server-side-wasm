@@ -13,3 +13,4 @@ wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }
 toml = "*"
 fs = "*"
 anyhow = "*"
+rand = "*"

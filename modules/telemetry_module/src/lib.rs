@@ -1,11 +1,15 @@
-// wit_bindgen_rust::import!("../../wits/hostfunctions.wit");
+wit_bindgen_rust::import!("../../wits/hostobservability.wit");
 wit_bindgen_rust::export!("../../wits/wasmtelemetryfunctions.wit");
 
-mod iot_config;
+mod config;
+
 use std::fs;
+use std::time::{Duration, SystemTime};
+use std::thread::sleep;
+use rand::Rng;
 // use anyhow::{Result};
 
-const MODULE_NAME: &str = "Simulated Temperature Sensor Edge Module";
+const MODULE_NAME: &str = "Simulated Telemetry Module";
 
 struct Wasmtelemetryfunctions;
 
@@ -14,24 +18,31 @@ impl wasmtelemetryfunctions::Wasmtelemetryfunctions for Wasmtelemetryfunctions {
     // Initialise module with required configuration.
     fn init(config_file_path: String)
     {
-        let configfilepath = config_file_path;
-        let configfilecontents = fs::read_to_string(configfilepath).unwrap(); // TODO: use anyhow::Result instead of unwrap.
+        let configfilecontents = fs::read_to_string(config_file_path).unwrap();
 
-        let iot_edge_config = iot_config::Configuration::new(configfilecontents);
-        let iot_edge_connection_string = iot_edge_config.connection_string();
-        
-        println!("Initialising edge module '{}' with connection string '{}'", MODULE_NAME, iot_edge_connection_string);
+        let telemetry_config = config::Configuration::new(configfilecontents);
+        let telemetry_interval_in_milliseconds = telemetry_config.telemetry_interval_in_milliseconds();
+                
+        hostobservability::loginfo(MODULE_NAME, &format!("Initialising module with telemetry interval of '{}' ms", telemetry_interval_in_milliseconds));
+       
+        // Generate temperature and pressure values randomly for simulation
+        let mut random_number = rand::thread_rng();
 
-        // Calling host function here and print the return value.
-        hostfunctions::sendtelemetry(r#"{"device Id" : "001", "temp" : 12.5, "pressure": 20.3}"#);
+        loop {
+            let random_temp = random_number.gen_range(0.0..100.0);
+            let random_pressure = random_number.gen_range(0.0..50.0);
+
+            let telemetry_message = format!("{{\"device Id\" : \"001\", \"temperature\" : {random_temp:.2}, \"pressure\":{random_pressure:.2}}}");
+            let time_now = SystemTime::now();
+            
+            // Start: Send telemetry to pub-sub here.
+            // TODO: Flesh out code
+            // End: Send telemetry to pub-sub here.
+
+            hostobservability::loginfo(MODULE_NAME, &format!("Sent message at {time_now:?}, event: {telemetry_message}"));
+
+            // Wait for configured time.
+            sleep(Duration::from_millis(telemetry_interval_in_milliseconds.into()));
+        }
     }
 }
-
-// #[cfg(test)]
-// mod module_tests {
-//     use super::*;
-//     #[test]
-//     fn check_module_init() {
-//         Wasmtelemetryfunctions::init("config.toml".to_string());
-//     }
-// }

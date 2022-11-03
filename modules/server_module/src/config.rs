@@ -13,9 +13,9 @@ impl Configuration {
         }
     }
 
-    // Returns connection string for IoT Hub
-    pub fn connection_string(&self) -> String
+    // Returns buffer size when data is read from incoming stream
+    pub fn data_read_buffer_size(&self) -> u32
     {
-        self.config_value["iot_hub_device_conn_string"].as_str().unwrap().to_string()
+        self.config_value["data_read_buffer_size"].as_str().unwrap().parse::<u32>().unwrap()
     }
 }
