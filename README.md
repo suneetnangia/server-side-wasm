@@ -80,11 +80,15 @@ The current solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-
 
 1. Open the solution in Codespaces
 2. Compile modules to wasm32-wasi:
-    1. `cd modules`
+    1. `cd modules/telemetry_module`
     2. run `cargo build --target wasm32-wasi`
+    3. `cd modules/gateway_module`
+    4. run `cargo build --target wasm32-wasi`
+    5. `cd modules/server_module`
+    6. run `cargo build --target wasm32-wasi`
 3. Compile and run app which hosts wasmtime and wasi with imported/exported functions to run Wasm edge module:
     1. `cd host`
-    2. run `cargo run`
+    2. run `cargo run -- --gateway-allowed-host "<your http post endpoint for gateway module>" --server-socket-address "127.0.0.1:8080"`
 
 ## Refereces
 
