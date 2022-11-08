@@ -66,15 +66,19 @@ There are three Wasm modules in this solution:
 
 1. Gateway
 
-    Role of this Wasm module is to send http post to the external endpoint (create one at https://requestbin.com for testing) , it subscribes to the events on Server/pub-sub module.
+    Role of this Wasm module is to send http post to the external endpoint (create one at https://requestbin.com for testing) , it will subscribes to the events on Server/pub-sub module.
+
+    `--gateway-allowed-host` parameter defines the permitted host which this wasm module can post messages to, specify your http post endpoint via this parameter for WASI to allow access and in Wasm module's config file `modules/gateway_module/src/config.rs` to post to this endpoint.
+
 2. Server
 
-    Role of this Wasm module is to run server which listens on a pre-opened socket, in this solution a psuedo pub/sub module. [WIP]
+    Role of this Wasm module is to run server which listens on a pre-opened socket, in this solution a psuedo pub/sub module. [Work in Progress]
+
+    `--server-socket-address` parameter defines the endpoint on which server listens.
+
 3. Telemetry
 
-    Role of this module is to emit events which are sent to Server/pub-sub module.
-
-The current solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-gb/azure/iot-hub/) for data plane purposes i.e. sends events to IoT Hub but this is not hardwired, you can send events to any other RESTful endpoint. This is enabled by [Http outbound API](https://deislabs.io/posts/wasi-experimental-http/) use from the wasm module.
+    Role of this module is to emit events which will be sent to Server/pub-sub module.
 
 ## Dev Setup
 
@@ -86,9 +90,9 @@ The current solution makes use of [Azure IoT Hub](https://docs.microsoft.com/en-
     4. run `cargo build --target wasm32-wasi`
     5. `cd modules/server_module`
     6. run `cargo build --target wasm32-wasi`
-3. Compile and run app which hosts wasmtime and wasi with imported/exported functions to run Wasm edge module:
+3. Compile and run app which hosts wasmtime and wasi with imported/exported functions to run above Wasm modules:
     1. `cd host`
-    2. run `cargo run -- --gateway-allowed-host "<your http post endpoint for gateway module>" --server-socket-address "127.0.0.1:8080"`
+    2. run `cargo run -- --gateway-allowed-host "<http post endpoint for gateway module, must match in modules/gateway_module/src/config.rs>" --server-socket-address "127.0.0.1:8080"`
 
 ## Refereces
 
