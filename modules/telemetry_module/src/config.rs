@@ -13,9 +13,9 @@ impl Configuration {
         }
     }
 
-    // Returns connection string for IoT Hub
-    pub fn connection_string(&self) -> String
+    // Returns telemetry interval in milliseconds
+    pub fn telemetry_interval_in_milliseconds(&self) -> u32
     {
-        self.config_value["iot_hub_device_conn_string"].as_str().unwrap().to_string()
+        self.config_value["telemetry_interval_in_milliseconds"].as_str().unwrap().parse::<u32>().unwrap()
     }
 }

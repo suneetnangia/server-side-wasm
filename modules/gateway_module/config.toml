@@ -1,0 +1,2 @@
+# These are examples, update http post url to your endpoint or create one at https://requestbin.com/ for testing purposes.
+http_post_url = 'https://eouig31wcbg8fl.m.pipedream.net'

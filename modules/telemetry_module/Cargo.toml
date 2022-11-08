@@ -1,12 +1,16 @@
 [package]
-name = "edge"
+name = "telemetry_module"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
+wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }
+toml = "*"
+fs = "*"
 anyhow = "*"
-wit-bindgen-wasmtime = { git = "https://github.com/bytecodealliance/wit-bindgen.git" }
-wasmtime-wasi = "0.38.1"
-# wasi-experimental-http-wasmtime = "0.10.0"
+rand = "*"
