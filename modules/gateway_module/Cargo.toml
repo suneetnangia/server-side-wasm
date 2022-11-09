@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }
+wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "dde4694aaa6acf9370206527a798ac4ba6a8c5b8" }
 wasi-experimental-http = { git = "https://github.com/deislabs/wasi-experimental-http", rev = "a82ae3d6c85c4251b3663035febeb8100068f51d" }
 bytes = "1"
 http = "0.2"
