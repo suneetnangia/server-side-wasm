@@ -33,7 +33,7 @@ impl wasmserverfunctions::Wasmserverfunctions for Wasmserverfunctions {
 }   
 
 #[tokio::main(flavor = "current_thread")]
-async fn run_server(fd: u32, data_read_buffer_size: u32, message_queue: Queue<String>) -> Result<(), Box<dyn Error>> {
+async fn run_server(fd: u32, data_read_buffer_size: u32, _message_queue: Queue<String>) -> Result<(), Box<dyn Error>> {
     
     let listener = get_tcplistener(fd).await?;
     
@@ -52,6 +52,7 @@ async fn run_server(fd: u32, data_read_buffer_size: u32, message_queue: Queue<St
 
         // TODO: do not move message_queue object, use a shared queue which can deal with multi writes/read in thread safe manner.
         tokio::spawn(async move {
+            let message_queue: Queue<String> = queue![];
             if let Err(e) = process(socket, data_read_buffer_size, message_queue).await {
                 hostobservability::loginfo(MODULE_NAME, &format!("failed to process connection; error = {}", e));
             }

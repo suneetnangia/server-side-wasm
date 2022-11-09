@@ -9,7 +9,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }
+wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "dde4694aaa6acf9370206527a798ac4ba6a8c5b8" }
+
 tokio = { version = "*", features = ["rt", "macros", "net", "io-util"] }
 # tokio = { git = "https://github.com/tokio-rs/tokio", branch = "master", features = ["rt", "macros", "net", "io-util"] }
 toml = "*"
