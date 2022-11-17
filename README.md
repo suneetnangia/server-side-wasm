@@ -95,7 +95,7 @@ There are three Wasm modules in this solution:
         run `cargo build --target wasm32-wasi`
 3. Compile and run Host app with Wasmtime and WASI importing/exporting functions to/from the above Wasm modules:
     1. `cd host`
-    2. run `cargo run -- --gateway-allowed-host "<http post endpoint for gateway module, must match in modules/gateway_module/src/config.rs>" --server-socket-address "127.0.0.1:8080"`
+    2. run `cargo run -- --gateway-allowed-host "<http post endpoint for gateway module, must match in modules/gateway_module/config.toml>" --server-socket-address "127.0.0.1:8080"`
 
 ## Refereces
 
