@@ -10,9 +10,11 @@ When Wasm is hosted outside of web browser, it needs an interface to interact wi
 
 This question has been answered already by many organisations and individuals alike, but here are some of the key tenets/promises of Wasm:
 
+
 1. Portable (Hardware, Language and Platform)
 2. Secure (sandboxed and secure by default)
 3. Near native performance
+
 4. Lightweight (when compared to containers)
 
 ## Common Challenges & Solutions
@@ -72,7 +74,7 @@ There are three Wasm modules in this solution:
 
 2. Server
 
-    Role of this Wasm module is to run a server which listens on a pre-opened socket, in this solution a psuedo pub/sub module. [Work in Progress]
+    Role of this Wasm module is to run a server which listens on a pre-opened socket, in this solution a psuedo pub/sub module.
 
     `--server-socket-address` cmdline parameter in host app defines the endpoint on which server listens.
 
@@ -95,7 +97,7 @@ There are three Wasm modules in this solution:
         run `cargo build --target wasm32-wasi`
 3. Compile and run Host app with Wasmtime and WASI importing/exporting functions to/from the above Wasm modules:
     1. `cd host`
-    2. run `cargo run -- --gateway-allowed-host "<http post endpoint for gateway module, must match in modules/gateway_module/config.toml>" --server-socket-address "127.0.0.1:8080"`
+    2. run `cargo run -- --gateway-allowed-host "https://eouig31wcbg8fl.m.pipedream.net" --server-socket-address "127.0.0.1:8080"`
 
 ## Refereces
 
