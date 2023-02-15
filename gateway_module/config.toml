@@ -1,0 +1,5 @@
+# These are examples, update http post url to your endpoint or create one at https://requestbin.com/ for testing purposes.
+http_post_url = 'https://eop49ipgkxwe2sk.m.pipedream.net'
+http_post_interval_in_milliseconds = '10'
+http_post_response_code = '200'
+topic = 'telemetry'
