@@ -1,21 +1,21 @@
-wit_bindgen_rust::import!("../../wits/hostobservability.wit");
-wit_bindgen_rust::export!("../../wits/wasmtelemetryfunctions.wit");
+wit_bindgen_rust::import!("../wits/hostobservability.wit");
+wit_bindgen_rust::export!("../wits/wasmtelemetryfunctions.wit");
 
 mod config;
 
 use rand::Rng;
 use std::fs;
 use std::thread::sleep;
-use std::time::{Duration, SystemTime};
-// use anyhow::{Result};
+use std::time::Duration;
 
-const MODULE_NAME: &str = "Simulated Telemetry Module";
+const MODULE_NAME: &str = "Simulated Telemetry";
 
 struct Wasmtelemetryfunctions;
 
 impl wasmtelemetryfunctions::Wasmtelemetryfunctions for Wasmtelemetryfunctions {
     // Initialise module with required configuration.
-    fn init(config_file_path: String) {
+    #[tokio::main(flavor = "current_thread")]
+    async fn init(config_file_path: String) {
         let configfilecontents = fs::read_to_string(config_file_path).unwrap();
 
         let telemetry_config = config::Configuration::new(configfilecontents);
@@ -38,16 +38,8 @@ impl wasmtelemetryfunctions::Wasmtelemetryfunctions for Wasmtelemetryfunctions {
             let random_pressure = random_number.gen_range(0.0..50.0);
 
             let telemetry_message = format!("{{\"device Id\" : \"001\", \"temperature\" : {random_temp:.2}, \"pressure\":{random_pressure:.2}}}");
-            let time_now = SystemTime::now();
 
-            // Start: Send telemetry to pub-sub here.
-            // TODO: Flesh out code
-            // End: Send telemetry to pub-sub here.
-
-            hostobservability::loginfo(
-                MODULE_NAME,
-                &format!("Sent message at {time_now:?}, event: {telemetry_message}"),
-            );
+            hostobservability::publish("telemetry", &telemetry_message);
 
             // Wait for configured time.
             sleep(Duration::from_millis(

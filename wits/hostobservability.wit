@@ -1,1 +1,4 @@
 loginfo: func(modulename: string, message: string)
+publish: func(topic: string, message: string)
+subscribe: func(topic: string) -> string
+read: func(topic: string) -> string

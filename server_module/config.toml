@@ -1,0 +1,3 @@
+data_read_buffer_size = '1024'
+receiver_loop_interval_in_milliseconds = '5000'
+topics = 'alert telemetry deadletter'
